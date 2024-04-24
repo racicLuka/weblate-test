@@ -18,7 +18,7 @@ jobs:
         run: |
           git fetch origin
           COMMITS=$(git log --format=%H --grep="Weblate" origin/main..)
-          echo "{commits}={$COMMITS}" >> $GITHUB_OUTPUT
+          echo "commits=${COMMITS}" >> $GITHUB_ENV
 
       - name: Check for Commits in Other Branches
         id: check-other-branches
@@ -33,17 +33,17 @@ jobs:
                       MISSING_COMMITS+=("$commit")
                       MISSING_BRANCHES+=("$branch")
                   fi
-              done <<< "${{ steps.weblate-commits.outputs.commits }}"
+              done <<< "${{ env.COMMITS }}"
           done <<< "$OTHER_BRANCHES"
           
-          echo "{missing_commits}={MISSING_COMMITS[*]}" >> $GITHUB_OUTPUT
-          echo "{missing_branches}={MISSING_BRANCHES[*]}" >> $GITHUB_OUTPUT
+          echo "missing_commits=${MISSING_COMMITS[*]}" >> $GITHUB_ENV
+          echo "missing_branches=${MISSING_BRANCHES[*]}" >> $GITHUB_ENV
 
       - name: Pull Weblate Commits to Other Branches
-        if: steps.check-other-branches.outputs.missing_commits != ''
+        if: env.missing_commits != ''
         run: |
-          MISSING_COMMITS=(${{ steps.check-other-branches.outputs.missing_commits }})
-          MISSING_BRANCHES=(${{ steps.check-other-branches.outputs.missing_branches }})
+          MISSING_COMMITS=($MISSING_COMMITS)
+          MISSING_BRANCHES=($MISSING_BRANCHES)
           for ((i=0; i<${#MISSING_COMMITS[@]}; ++i)); do
             git checkout ${MISSING_BRANCHES[$i]}
             git cherry-pick ${MISSING_COMMITS[$i]}
