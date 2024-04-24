@@ -18,7 +18,9 @@ jobs:
         run: |
           git fetch origin
           COMMITS=$(git log --grep="Weblate" origin/main --format=%H)
-          echo "commits=${COMMITS}" >> $GITHUB_ENV
+          TEST=$(git branch --format='%(refname:short)' | grep -v "main")
+          echo "$TEST"
+          echo "commits=${COMMITS}" >> $GITHUB_OUTPUT
 
       - name: Check for Commits in Other Branches
         id: check-other-branches
@@ -33,7 +35,7 @@ jobs:
                       MISSING_COMMITS+=("$commit")
                       MISSING_BRANCHES+=("$branch")
                   fi
-              done <<< "${{ env.COMMITS }}"
+              done <<< "${{ steps.weblate-commits.outputs.commits }}"
           done <<< "$OTHER_BRANCHES"
           
           echo "missing_commits=${MISSING_COMMITS[*]}" >> $GITHUB_ENV
