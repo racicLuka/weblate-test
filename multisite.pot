@@ -57,6 +57,3 @@ msgstr ""
 
 msgid " (in relation to all successful packets)"
 msgstr ""
-
-msgid " (lower levels)"
-msgstr ""
