@@ -18,6 +18,7 @@ jobs:
       - name: List Weblate Commits
         id: weblate-commits
         run: |
+          cd weblate-test
           git fetch origin
           git branch --show-current
           git log
