@@ -17,6 +17,8 @@ jobs:
         id: weblate-commits
         run: |
           git fetch origin
+          git branch --show-current
+          git checkout remotes/origin/main
           git log -3
           git log --grep="Weblate" main
           COMMITS=$(git log --grep="Weblate" main --format=%H)
