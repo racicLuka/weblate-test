@@ -13,28 +13,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: List Weblate Commits
-        id: weblate-commits
+      - name: Debug Repository State
         run: |
-          git fetch origin
-          COMMITS=$(git log --grep="Weblate" origin/main --format=%H)
-          echo "these are the commits $COMMITS"
-          BR=$(git branch --list)
-          echo "there are the branches $BR"
-          MISSING_COMMITS=()
-          MISSING_BRANCHES=()
-          for BRANCH in ${{ steps.set-other-branches.outputs.other_branches }}; do
-            for COMMIT in ${{ steps.weblate-commits.outputs.commits }}; do
-              if ! git branch --contains $COMMIT | grep -q "remotes/origin/$BRANCH"; then
-                echo "Commit $COMMIT does not exist in branch $BRANCH"
-                MISSING_COMMITS+=($COMMIT)
-                MISSING_BRANCHES+=($BRANCH)
-              fi
-            done
-          done
-          echo "these are the missing commits $MISSING_COMMITS"
-          for ((i=0; i<=${#MISSING_COMMITS[@]}; ++i)); do
-            git checkout ${MISSING_BRANCHES[$i]}
-            git cherry-pick ${MISSING_COMMITS[$i]}
-          done
-          git push origin $OTHER_BRANCHES
+          git branch
+          git log --oneline
