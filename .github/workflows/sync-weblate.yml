@@ -15,5 +15,6 @@ jobs:
 
       - name: Debug Repository State
         run: |
+          git fetch origin  
           git branch
           git log --oneline
