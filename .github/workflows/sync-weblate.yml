@@ -47,6 +47,8 @@ jobs:
           done
           for ((i=0; i<=${#MISSING_COMMITS[@]}; ++i)); do
             git checkout ${MISSING_BRANCHES[$i]}
+            git config --global user.email "luka.racic@checkmk.com"
+            git config --global user.name "racicLuka"
             git cherry-pick ${MISSING_COMMITS[$i]}
           done
           git push origin $OTHER_BRANCHES
