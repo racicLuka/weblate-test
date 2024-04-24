@@ -30,7 +30,6 @@ jobs:
           while IFS= read -r branch; do
               while IFS= read -r commit; do
                   if ! git branch --contains "$commit" | grep -q "$branch"; then
-                      echo "Commit $commit does not exist in branch $branch"
                       MISSING_COMMITS+=("$commit")
                       MISSING_BRANCHES+=("$branch")
                   fi
