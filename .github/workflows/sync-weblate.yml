@@ -19,18 +19,6 @@ jobs:
           git fetch origin
           COMMITS=$(git log --grep="Weblate" origin/main --format=%H)
           echo "{commits}=$COMMITS" >> $GITHUB_OUTPUT
-
-      - name: Set Other Branches
-        id: set-other-branches
-        run: |
-          git fetch --prune --tags
-          OTHER_BRANCHES=$(git branch -r | grep -v "origin/main" | cut -d'/' -f2 | xargs)
-          echo "these are the other branches $OTHER_BRANCHES"
-          echo "{other_branches}=$OTHER_BRANCHES" >> $GITHUB_OUTPUT
-
-      - name: Check for Commits in Other Branches
-        id: check-other-branches
-        run: |
           MISSING_COMMITS=()
           MISSING_BRANCHES=()
           for BRANCH in ${{ steps.set-other-branches.outputs.other_branches }}; do
@@ -42,13 +30,6 @@ jobs:
               fi
             done
           done
-          echo "{missing_commits}=$MISSING_COMMITS[*]" >> $GITHUB_OUTPUT
-          echo "{missing_branches}=$MISSING_BRANCHES[*]" >> $GITHUB_OUTPUT
-          
-      - name: Pull Weblate Commits to Other Branches
-        run: |
-          MISSING_COMMITS=(${{ steps.check-other-branches.outputs.missing_commits }})
-          MISSING_BRANCHES=(${{ steps.check-other-branches.outputs.missing_branches }})
           echo "these are the missing commits $MISSING_COMMITS"
           for ((i=0; i<=${#MISSING_COMMITS[@]}; ++i)); do
             git checkout ${MISSING_BRANCHES[$i]}
