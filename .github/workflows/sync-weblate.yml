@@ -15,13 +15,50 @@ jobs:
           git clone https://github.com/racicLuka/weblate-test.git
           cd weblate-test
           git checkout main
+      
       - name: List Weblate Commits
         id: weblate-commits
         run: |
           cd weblate-test
           git fetch origin
-          COMMITS=$(git log --grep="Weblate" main --format=%H)
-          echo "these are the commits $COMMITS"
-          BR=$(git branch -a)
-          echo "there are the branches $BR"
-          
+          COMMITS=$(git log --grep="Weblate" origin/main --format=%H)
+          echo "{commits}=$COMMITS" >> $GITHUB_OUTPUT
+      
+      - name: Set Other Branches
+        id: set-other-branches
+        run: |
+          cd weblate-test
+          git fetch --prune --tags
+          OTHER_BRANCHES=$(git branch -r | grep -v "origin/main" | cut -d'/' -f2 | xargs)
+          echo "these are the other branches $OTHER_BRANCHES"
+          echo "{other_branches}=$OTHER_BRANCHES" >> $GITHUB_OUTPUT
+      
+      - name: Check for Commits in Other Branches
+        id: check-other-branches
+        run: |
+          cd weblate-test
+          MISSING_COMMITS=()
+          MISSING_BRANCHES=()
+          for BRANCH in ${{ steps.set-other-branches.outputs.other_branches }}; do
+            for COMMIT in ${{ steps.weblate-commits.outputs.commits }}; do
+              if ! git branch --contains $COMMIT | grep -q "remotes/origin/$BRANCH"; then
+                echo "Commit $COMMIT does not exist in branch $BRANCH"
+                MISSING_COMMITS+=($COMMIT)
+                MISSING_BRANCHES+=($BRANCH)
+              fi
+            done
+          done
+          echo "{missing_commits}=$MISSING_COMMITS[*]" >> $GITHUB_OUTPUT
+          echo "{missing_branches}=$MISSING_BRANCHES[*]" >> $GITHUB_OUTPUT
+      
+      - name: Pull Weblate Commits to Other Branches
+        run: |
+          cd weblate-test
+          MISSING_COMMITS=(${{ steps.check-other-branches.outputs.missing_commits }})
+          MISSING_BRANCHES=(${{ steps.check-other-branches.outputs.missing_branches }})
+          echo "these are the missing commits $MISSING_COMMITS"
+          for ((i=0; i<=${#MISSING_COMMITS[@]}; ++i)); do
+            git checkout ${MISSING_BRANCHES[$i]}
+            git cherry-pick ${MISSING_COMMITS[$i]}
+          done
+          git push origin $OTHER_BRANCHES
