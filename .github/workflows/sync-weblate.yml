@@ -22,9 +22,9 @@ jobs:
           cd weblate-test
           git fetch origin
           output=$(git log --grep="Weblate" origin/main --format=%H)
-          declare -a commits=()
+          declare -a COMMITS=()
           while IFS= read -r line; do
-            commits+=("$line")
+            COMMITS+=("$line")
           done <<< "$output"
           git fetch --prune --tags
           branches_output=$(git branch -r | grep -v "origin/main" | cut -d'/' -f2 | xargs)
