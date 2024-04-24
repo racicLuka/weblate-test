@@ -18,8 +18,8 @@ jobs:
         run: |
           git fetch origin
           COMMITS=$(git log --format=%H --grep="Weblate" origin/main..)
-          echo "test"
           echo "::set-output name=commits::$COMMITS"
+          echo "$commits"
 
       - name: Check for Commits in Other Branches
         id: check-other-branches
