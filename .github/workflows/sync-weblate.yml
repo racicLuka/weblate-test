@@ -18,7 +18,9 @@ jobs:
         run: |
           git fetch origin
           COMMITS=$(git log --grep="Weblate" origin/main --format=%H)
-          echo "{commits}=$COMMITS" >> $GITHUB_OUTPUT
+          echo "these are the commits $COMMITS"
+          BR=$(git branch --list)
+          echo "there are the branches $BR"
           MISSING_COMMITS=()
           MISSING_BRANCHES=()
           for BRANCH in ${{ steps.set-other-branches.outputs.other_branches }}; do
