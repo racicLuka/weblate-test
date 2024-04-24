@@ -48,7 +48,7 @@ jobs:
         run: |
           MISSING_COMMITS=(${{ steps.check-other-branches.outputs.missing_commits }})
           MISSING_BRANCHES=(${{ steps.check-other-branches.outputs.missing_branches }})
-          echo "$MISSING_COMMITS"
+          echo "these are the missing commits $MISSING_COMMITS"
           for ((i=0; i<=${#MISSING_COMMITS[@]}; ++i)); do
             git checkout ${MISSING_BRANCHES[$i]}
             git cherry-pick ${MISSING_COMMITS[$i]}
