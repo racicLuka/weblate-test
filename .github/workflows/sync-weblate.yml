@@ -27,12 +27,6 @@ jobs:
             commits+=("$line")
           done <<< "$output"
           echo "$commits"
-          echo "{commits}=$commits" >> $GITHUB_OUTPUT
-      
-      - name: Set Other Branches
-        id: set-other-branches
-        run: |
-          cd weblate-test
           git fetch --prune --tags
           output=$(git branch -r | grep -v "origin/main" | cut -d'/' -f2 | xargs)
           declare -a OTHER_BRANCHES=()
@@ -40,12 +34,6 @@ jobs:
             OTHER_BRANCHES+=("$line")
           done <<< "$output"
           echo "these are the other branches $OTHER_BRANCHES"
-          echo "{other_branches}=$OTHER_BRANCHES" >> $GITHUB_OUTPUT
-      
-      - name: Check for Commits in Other Branches
-        id: check-other-branches
-        run: |
-          cd weblate-test
           MISSING_COMMITS=()
           MISSING_BRANCHES=()
           echo "branches ${{ steps.set-other-branches.outputs.other_branches }}"
@@ -61,14 +49,6 @@ jobs:
           done
           echo "$MISSING_COMMITS"
           echo "$MISSING_BRANCHES"
-          echo "{missing_commits}=$MISSING_COMMITS[*]" >> $GITHUB_OUTPUT
-          echo "{missing_branches}=$MISSING_BRANCHES[*]" >> $GITHUB_OUTPUT
-      
-      - name: Pull Weblate Commits to Other Branches
-        run: |
-          cd weblate-test
-          MISSING_COMMITS=(${{ steps.check-other-branches.outputs.missing_commits }})
-          MISSING_BRANCHES=(${{ steps.check-other-branches.outputs.missing_branches }})
           echo "these are the missing commits $MISSING_COMMITS"
           for ((i=0; i<=${#MISSING_COMMITS[@]}; ++i)); do
             git checkout ${MISSING_BRANCHES[$i]}
