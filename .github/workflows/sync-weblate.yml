@@ -21,15 +21,24 @@ jobs:
         run: |
           cd weblate-test
           git fetch origin
-          COMMITS=$(git log --grep="Weblate" origin/main --format=%H)
-          echo "{commits}=$COMMITS" >> $GITHUB_OUTPUT
+          output=$(git log --grep="Weblate" origin/main --format=%H)
+          declare -a commits=()
+          while IFS= read -r line; do
+            commits+=("$line")
+          done <<< "$output"
+          echo "$commits"
+          echo "{commits}=$commits" >> $GITHUB_OUTPUT
       
       - name: Set Other Branches
         id: set-other-branches
         run: |
           cd weblate-test
           git fetch --prune --tags
-          OTHER_BRANCHES=$(git branch -r | grep -v "origin/main" | cut -d'/' -f2 | xargs)
+          output=$(git branch -r | grep -v "origin/main" | cut -d'/' -f2 | xargs)
+          declare -a OTHER_BRANCHES=()
+          while IFS= read -r line; do
+            OTHER_BRANCHES+=("$line")
+          done <<< "$output"
           echo "these are the other branches $OTHER_BRANCHES"
           echo "{other_branches}=$OTHER_BRANCHES" >> $GITHUB_OUTPUT
       
