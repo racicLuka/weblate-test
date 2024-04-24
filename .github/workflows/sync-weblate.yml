@@ -36,10 +36,8 @@ jobs:
           echo "these are the other branches $OTHER_BRANCHES"
           MISSING_COMMITS=()
           MISSING_BRANCHES=()
-          echo "branches ${{ steps.set-other-branches.outputs.other_branches }}"
-          echo "commits ${{ steps.weblate-commits.outputs.commits }}"
-          for BRANCH in ${{ steps.set-other-branches.outputs.other_branches }}; do
-            for COMMIT in ${{ steps.weblate-commits.outputs.commits }}; do
+          for BRANCH in $OTHER_BRANCHES; do
+            for COMMIT in $COMMITS; do
               if ! git branch --contains $COMMIT | grep -q "remotes/origin/$BRANCH"; then
                 echo "Commit $COMMIT does not exist in branch $BRANCH"
                 MISSING_COMMITS+=($COMMIT)
