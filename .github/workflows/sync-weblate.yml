@@ -33,7 +33,7 @@ jobs:
                       MISSING_COMMITS+=("$commit")
                       MISSING_BRANCHES+=("$branch")
                   fi
-              done <<< "$COMMITS"
+              done <<< "${{ steps.weblate-commits.outputs.commits }}"
           done <<< "$OTHER_BRANCHES"
           
           echo "{missing_commits}={MISSING_COMMITS[*]}" >> $GITHUB_OUTPUT
