@@ -1,0 +1,45 @@
+name: Sync Weblate Commits
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  check-and-sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: List Weblate Commits
+        id: weblate-commits
+        run: |
+          git fetch origin
+          COMMITS=$(git log --format=%H --grep="^Weblate" origin/main..)
+          echo "::set-output name=commits::$COMMITS"
+
+      - name: Check for Commits in Other Branches
+        id: check-other-branches
+        run: |
+          OTHER_BRANCHES=$(git branch --format='%(refname:short)' | grep -v "main")
+          for BRANCH in $OTHER_BRANCHES; do
+            for COMMIT in ${{ steps.weblate-commits.outputs.commits }}; do
+              if git branch --contains $COMMIT | grep -q $BRANCH; then
+                echo "Commit $COMMIT exists in branch $BRANCH"
+                exit 1
+              fi
+            done
+          done
+
+      - name: Pull Weblate Commits to Other Branches
+        if: ${{ failure() }}
+        run: |
+          for BRANCH in $OTHER_BRANCHES; do
+            for COMMIT in ${{ steps.weblate-commits.outputs.commits }}; do
+              git checkout $BRANCH
+              git cherry-pick $COMMIT
+            done
+          done
+          git push origin $OTHER_BRANCHES
