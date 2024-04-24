@@ -17,7 +17,7 @@ jobs:
         id: weblate-commits
         run: |
           git fetch origin
-          COMMITS=$(git log --format=%H --grep="Weblate" origin/main..)
+          COMMITS=$(git log --grep="Weblate" origin/main --format=%H)
           echo "{commits}=$COMMITS" >> $GITHUB_OUTPUT
 
       - name: Set Other Branches
@@ -25,6 +25,7 @@ jobs:
         run: |
           git fetch --prune --tags
           OTHER_BRANCHES=$(git branch -r | grep -v "origin/main" | cut -d'/' -f2 | xargs)
+          echo "these are the other branches $OTHER_BRANCHES"
           echo "{other_branches}=$OTHER_BRANCHES" >> $GITHUB_OUTPUT
 
       - name: Check for Commits in Other Branches
