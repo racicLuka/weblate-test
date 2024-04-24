@@ -52,4 +52,3 @@ jobs:
             git cherry-pick ${MISSING_COMMITS[$i]}
             git push origin HEAD
           done
-          git push origin $OTHER_BRANCHES
