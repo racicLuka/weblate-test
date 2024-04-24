@@ -17,36 +17,39 @@ jobs:
         id: weblate-commits
         run: |
           git fetch origin
-          COMMITS=$(git log --grep="Weblate" origin/main --format=%H)
-          TEST=$(git branch --format='%(refname:short)' | grep -v "main")
-          echo "$TEST"
-          echo "commits=${COMMITS}" >> $GITHUB_OUTPUT
+          COMMITS=$(git log --format=%H --grep="Weblate" origin/main..)
+          echo "::set-output name=commits::$COMMITS"
+
+      - name: Set Other Branches
+        id: set-other-branches
+        run: |
+          git fetch --prune --tags
+          OTHER_BRANCHES=$(git branch -r | grep -v "origin/main" | cut -d'/' -f2 | xargs)
+          echo "::set-output name=other_branches::$OTHER_BRANCHES"
 
       - name: Check for Commits in Other Branches
         id: check-other-branches
         run: |
-          OTHER_BRANCHES=$(git branch --format='%(refname:short)' | grep -v "main")
           MISSING_COMMITS=()
           MISSING_BRANCHES=()
-
-          while IFS= read -r branch; do
-              while IFS= read -r commit; do
-                  if ! git branch --contains "$commit" | grep -q "$branch"; then
-                      MISSING_COMMITS+=("$commit")
-                      MISSING_BRANCHES+=("$branch")
-                  fi
-              done <<< "${{ steps.weblate-commits.outputs.commits }}"
-          done <<< "$OTHER_BRANCHES"
-          
-          echo "missing_commits=${MISSING_COMMITS[*]}" >> $GITHUB_ENV
-          echo "missing_branches=${MISSING_BRANCHES[*]}" >> $GITHUB_ENV
+          for BRANCH in ${{ steps.set-other-branches.outputs.other_branches }}; do
+            for COMMIT in ${{ steps.weblate-commits.outputs.commits }}; do
+              if ! git branch --contains $COMMIT | grep -q "remotes/origin/$BRANCH"; then
+                echo "Commit $COMMIT does not exist in branch $BRANCH"
+                MISSING_COMMITS+=($COMMIT)
+                MISSING_BRANCHES+=($BRANCH)
+              fi
+            done
+          done
+          echo "::set-output name=missing_commits::${MISSING_COMMITS[*]}"
+          echo "::set-output name=missing_branches::${MISSING_BRANCHES[*]}"
 
       - name: Pull Weblate Commits to Other Branches
-        if: env.missing_commits != ''
+        if: steps.check-other-branches.outputs.missing_commits != ''
         run: |
-          MISSING_COMMITS=($MISSING_COMMITS)
-          MISSING_BRANCHES=($MISSING_BRANCHES)
-          for ((i=0; i<${#MISSING_COMMITS[@]}; ++i)); do
+          MISSING_COMMITS=(${{ steps.check-other-branches.outputs.missing_commits }})
+          MISSING_BRANCHES=(${{ steps.check-other-branches.outputs.missing_branches }})
+          for ((i=0; i<=${#MISSING_COMMITS[@]}; ++i)); do
             git checkout ${MISSING_BRANCHES[$i]}
             git cherry-pick ${MISSING_COMMITS[$i]}
           done
