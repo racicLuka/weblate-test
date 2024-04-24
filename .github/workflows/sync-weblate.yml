@@ -18,9 +18,8 @@ jobs:
         run: |
           git fetch origin
           git branch --show-current
-          git checkout remotes/origin/main
-          git log -3
-          git log --grep="Weblate" main
+          git log --grep="Weblate" origin/main
+          git log --grep="Weblate" remotes/origin/main
           COMMITS=$(git log --grep="Weblate" main --format=%H)
           echo "these are the commits $COMMITS"
           BR=$(git branch -a)
