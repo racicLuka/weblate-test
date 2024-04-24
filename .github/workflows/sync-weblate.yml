@@ -28,12 +28,12 @@ jobs:
           done <<< "$output"
           echo "$commits"
           git fetch --prune --tags
-          output=$(git branch -r | grep -v "origin/main" | cut -d'/' -f2 | xargs)
+          branches_output=$(git branch -r | grep -v "origin/main" | cut -d'/' -f2 | xargs)
+          echo "new output $branches_output"
           declare -a OTHER_BRANCHES=()
           while IFS= read -r line; do
             OTHER_BRANCHES+=("$line")
-          done <<< "$output"
-          echo "these are the other branches $OTHER_BRANCHES"
+          done <<< "$branches_output"
           MISSING_COMMITS=()
           MISSING_BRANCHES=()
           for BRANCH in $OTHER_BRANCHES; do
@@ -45,9 +45,6 @@ jobs:
               fi
             done
           done
-          echo "$MISSING_COMMITS"
-          echo "$MISSING_BRANCHES"
-          echo "these are the missing commits $MISSING_COMMITS"
           for ((i=0; i<=${#MISSING_COMMITS[@]}; ++i)); do
             git checkout ${MISSING_BRANCHES[$i]}
             git cherry-pick ${MISSING_COMMITS[$i]}
