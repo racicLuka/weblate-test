@@ -50,5 +50,6 @@ jobs:
             git config --global user.email "luka.racic@checkmk.com"
             git config --global user.name "racicLuka"
             git cherry-pick ${MISSING_COMMITS[$i]}
+            git push origin HEAD
           done
           git push origin $OTHER_BRANCHES
