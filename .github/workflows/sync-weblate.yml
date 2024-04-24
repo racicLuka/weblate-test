@@ -26,19 +26,18 @@ jobs:
           while IFS= read -r line; do
             commits+=("$line")
           done <<< "$output"
-          echo "$commits"
           git fetch --prune --tags
           branches_output=$(git branch -r | grep -v "origin/main" | cut -d'/' -f2 | xargs)
-          echo "new output $branches_output"
           declare -a OTHER_BRANCHES=()
           while IFS= read -r word; do
             OTHER_BRANCHES+=("$word")
           done <<< "$branches_output"
-          echo "branches $OTHER_BRANCHES"
           MISSING_COMMITS=()
           MISSING_BRANCHES=()
           for BRANCH in $OTHER_BRANCHES; do
+            echo "this is the branch $BRANCH"
             for COMMIT in $COMMITS; do
+              echo "this is the commit $COMMIT"
               if ! git branch --contains $COMMIT | grep -q "remotes/origin/$BRANCH"; then
                 echo "Commit $COMMIT does not exist in branch $BRANCH"
                 MISSING_COMMITS+=($COMMIT)
