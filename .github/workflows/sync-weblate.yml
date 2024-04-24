@@ -57,6 +57,8 @@ jobs:
               fi
             done
           done
+          echo "$MISSING_COMMITS"
+          echo "$MISSING_BRANCHES"
           echo "{missing_commits}=$MISSING_COMMITS[*]" >> $GITHUB_OUTPUT
           echo "{missing_branches}=$MISSING_BRANCHES[*]" >> $GITHUB_OUTPUT
       
