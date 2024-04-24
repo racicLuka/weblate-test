@@ -17,29 +17,34 @@ jobs:
         id: weblate-commits
         run: |
           git fetch origin
-          COMMITS=$(git log --grep="Weblate" origin/main --format=%H)
-          echo "commits=$COMMITS" >> $GITHUB_OUTPUT
+          COMMITS=$(git log --format=%H --grep="Weblate" origin/main..)
+          echo "::set-output name=commits::$COMMITS"
 
       - name: Check for Commits in Other Branches
         id: check-other-branches
         run: |
           OTHER_BRANCHES=$(git branch --format='%(refname:short)' | grep -v "main")
+          MISSING_COMMITS=()
+          MISSING_BRANCHES=()
           for BRANCH in $OTHER_BRANCHES; do
             for COMMIT in ${{ steps.weblate-commits.outputs.commits }}; do
-              if git branch --contains $COMMIT | grep -q $BRANCH; then
-                echo "Commit $COMMIT exists in branch $BRANCH"
-                exit 1
+              if ! git branch --contains $COMMIT | grep -q $BRANCH; then
+                echo "Commit $COMMIT does not exist in branch $BRANCH"
+                MISSING_COMMITS+=($COMMIT)
+                MISSING_BRANCHES+=($BRANCH)
               fi
             done
           done
+          echo "::set-output name=missing_commits::${MISSING_COMMITS[*]}"
+          echo "::set-output name=missing_branches::${MISSING_BRANCHES[*]}"
 
       - name: Pull Weblate Commits to Other Branches
-        if: ${{ failure() }}
+        if: steps.check-other-branches.outputs.missing_commits != ''
         run: |
-          for BRANCH in $OTHER_BRANCHES; do
-            for COMMIT in ${{ steps.weblate-commits.outputs.commits }}; do
-              git checkout $BRANCH
-              git cherry-pick $COMMIT
-            done
+          MISSING_COMMITS=(${{ steps.check-other-branches.outputs.missing_commits }})
+          MISSING_BRANCHES=(${{ steps.check-other-branches.outputs.missing_branches }})
+          for ((i=0; i<${#MISSING_COMMITS[@]}; ++i)); do
+            git checkout ${MISSING_BRANCHES[$i]}
+            git cherry-pick ${MISSING_COMMITS[$i]}
           done
           git push origin $OTHER_BRANCHES
