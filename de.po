@@ -57,5 +57,5 @@ msgstr ""
 msgid " (in relation to all packets (successful + error))"
 msgstr ""
 
-msgid " (in relation to all successful packets)"
+msgid "this is a test"
 msgstr ""
