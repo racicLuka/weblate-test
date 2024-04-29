@@ -6,10 +6,10 @@ msgstr ""
 "Project-Id-Version: Checkmk user interface translation 0.1\n"
 "Report-Msgid-Bugs-To: feedback@checkmk.com\n"
 "POT-Creation-Date: 2011-05-13 09:42+0200\n"
-"PO-Revision-Date: 2024-04-25 12:19+0000\n"
-"Last-Translator: Luka Racic <luka.racic@checkmk.com>\n"
-"Language-Team: German <https://translate.checkmk.com/projects/luka-weblate-"
-"test/luka-test/de/>\n"
+"PO-Revision-Date: 2024-04-30 11:57+0000\n"
+"Last-Translator: Jörg Herbel <joerg.herbel@checkmk.com>\n"
+"Language-Team: German <https://translate.checkmk.com/projects/"
+"luka-weblate-test/stable-branch/de/>\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -33,7 +33,7 @@ msgstr " (Daten nicht komplett, maximale Nummer von Nodes)"
 
 #, python-format
 msgid " (Duration: %s)"
-msgstr " Dauer: %s"
+msgstr " asdlfkladskfj%sasdfsdaf"
 
 #, python-format
 msgid " (Duration: %s, %sIO: %s/s)"
